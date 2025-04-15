@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Balloon : MonoBehaviour
 {
-    public Transform[] waypoints;// path waypoints for balloon to follow
+    public Vector3[] waypoints;// path waypoints for balloon to follow
     private int currentWaypointIndex = 0; // index of the current waypoint the balloon is moving towards
     public float speed = 5f; // speed of the balloon
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -14,7 +14,7 @@ public class Balloon : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        moveBalloonTowardsWaypoint(); //move the balloon towards the current waypoint
     }
 
     void moveBalloonTowardsWaypoint()
@@ -22,10 +22,10 @@ public class Balloon : MonoBehaviour
         if(currentWaypointIndex < waypoints.Length)
         {
             // move the balloon towards the current waypoint
-            transform.position = Vector3.MoveTowards(transform.position, waypoints[currentWaypointIndex].position, speed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, waypoints[currentWaypointIndex], speed * Time.deltaTime);
             
             // check if the balloon has reached the current waypoint
-            if (Vector3.Distance(transform.position, waypoints[currentWaypointIndex].position) < 0.1f)
+            if (Vector3.Distance(transform.position, waypoints[currentWaypointIndex]) < 0.1f)
             {
                 currentWaypointIndex++; // move to the next waypoint
             }
