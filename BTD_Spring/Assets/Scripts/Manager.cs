@@ -5,6 +5,9 @@ public class Manager : MonoBehaviour
     public static Manager ManagerInstance; // Singleton reference to this manager object available to all other scripts
     public Vector3[] waypoints;   // path waypoints for balloons to follow
     private float cameraHeight = 10f; // height of the camera in world units
+    public GameObject balloonPrefab; // prefab for the balloon object to be spawned
+    public GameObject path;
+    private int numWaypoints = 10; // number of waypoints in the path
 
     void Awake()
     {
@@ -22,12 +25,13 @@ public class Manager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        waypoints = new Vector3[5]; // Initialize the waypoints array with 5 elements
-        waypoints[0] = Camera.main.ViewportToWorldPoint(new Vector3(0.2f, 0.5f, cameraHeight)); // Set the first waypoint at (0.2, 0.5)
-        waypoints[1] = Camera.main.ViewportToWorldPoint(new Vector3(0.4f, 0.5f, cameraHeight)); // Set the first waypoint at (0.4, 0.5)
-        waypoints[2] = Camera.main.ViewportToWorldPoint(new Vector3(0.4f, 0.8f, cameraHeight)); // Set the first waypoint at (0.4, 0.8)
-        waypoints[3] = Camera.main.ViewportToWorldPoint(new Vector3(0.7f, 0.3f, cameraHeight)); // Set the first waypoint at (0.7, 0.3)
-        waypoints[4] = Camera.main.ViewportToWorldPoint(new Vector3(0.8f, 0.5f, cameraHeight)); // Set the first waypoint at (0.8, 0.5)
+        waypoints = new Vector3[numWaypoints]; // Initialize the waypoints array with 5 elements
+        for (int i = 0; i < waypoints.Length; i++)
+        {
+            waypoints[i] = path.transform.Find("waypoint" + i).position; // Initialize each waypoint
+        }
+        SpawnBalloon(); // spawn the first balloon at the start of the path
+
     }
 
     // Update is called once per frame
@@ -40,5 +44,12 @@ public class Manager : MonoBehaviour
     {
         // handle the event when a balloon reaches the end of the path
         Debug.Log("Balloon reached the end of the path!");
+    }
+
+    public void SpawnBalloon()
+    {
+        // spawn a new balloon at the start of the path
+        GameObject newBalloon = Instantiate(balloonPrefab, waypoints[0], Quaternion.identity);
+        //newBalloon.transform.SetParent(transform); // set the balloon as a child of the manager object
     }
 }
