@@ -36,7 +36,7 @@ public class Dart : MonoBehaviour
         if (other.gameObject.CompareTag("Balloon"))
         {
             Debug.Log("Dart hit the balloon!"); // Log the collision
-            Destroy(other.gameObject); // Destroy the balloon object
+            other.gameObject.GetComponent<Balloon>().HitByDart(25f); // Call the HitByDart method on the balloon to reduce its health
             Destroy(gameObject); // Destroy the dart object
         }
     }

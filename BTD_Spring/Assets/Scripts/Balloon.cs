@@ -48,4 +48,14 @@ public class Balloon : MonoBehaviour
         Manager.ManagerInstance.BalloonReachedEnd(gameObject); // call dequeue in the manager to handle destruction
         Destroy(gameObject); // destroy the balloon object
     }
+
+    public void HitByDart(float damage)
+    {
+        // reduce the health of the balloon by the damage amount
+        health -= damage; // reduce the health of the balloon by the damage amount
+        if (health <= 0) // check if the balloon is dead
+        {
+            DestroyBalloon(); // destroy the balloon object
+        }
+    }
 }
