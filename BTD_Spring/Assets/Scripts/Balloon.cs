@@ -4,11 +4,15 @@ public class Balloon : MonoBehaviour
 {
     public Vector3[] waypoints;// path waypoints for balloon to follow
     private int currentWaypointIndex = 0; // index of the current waypoint the balloon is moving towards
-    public float speed = 2f; // speed of the balloon
+    public float speed = 1f; // speed of the balloon
+    public float health = 100f; // health of the balloon
+    public int index; // index of the current balloon in the queue
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         waypoints = Manager.ManagerInstance.waypoints; // get the waypoints from the manager instance
+        index = Manager.ManagerInstance.numberOfBalloons; // get the current balloon index from the manager instance
+        Manager.ManagerInstance.numberOfBalloons++; // increment manager instance balloon index
         transform.up = waypoints[currentWaypointIndex] - transform.position; // rotate the balloon to face the waypoint
     }
 
@@ -24,19 +28,24 @@ public class Balloon : MonoBehaviour
         {
             // move the balloon towards the current waypoint
             transform.position = Vector3.MoveTowards(transform.position, waypoints[currentWaypointIndex], speed * Time.deltaTime);
+            transform.up = waypoints[currentWaypointIndex] - transform.position; // rotate the balloon to face the waypoint
             
             // check if the balloon has reached the current waypoint
             if (Vector3.Distance(transform.position, waypoints[currentWaypointIndex]) < 0.01f)
             {
                 currentWaypointIndex++; // move to the next waypoint
-                transform.up = waypoints[currentWaypointIndex] - transform.position; // rotate the balloon to face the waypoint
             }
         }
         //balloon has reached the end of the path, reduce health or end game
         else
         {
-            Manager.ManagerInstance.BalloonReachedEnd(); // call the method in the manager to handle the event
-            Destroy(gameObject); // destroy the balloon if it has reached the end of the path
+            DestroyBalloon(); // destroy the balloon object
         }
+    }
+
+    void DestroyBalloon()
+    {
+        Manager.ManagerInstance.BalloonReachedEnd(gameObject); // call dequeue in the manager to handle destruction
+        Destroy(gameObject); // destroy the balloon object
     }
 }
