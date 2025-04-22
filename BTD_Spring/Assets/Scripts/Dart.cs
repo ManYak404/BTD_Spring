@@ -14,6 +14,11 @@ public class Dart : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(targetBalloon == null) // Check if the target balloon is popped
+        {
+            Destroy(gameObject); // Destroy the dart object if the target balloon is null
+            return; // Exit the update method
+        }
         MoveTowardsTarget(); // Move the dart towards the target position
     }
 
@@ -35,8 +40,7 @@ public class Dart : MonoBehaviour
         // Check if the dart has collided with a balloon
         if (other.gameObject.CompareTag("Balloon"))
         {
-            Debug.Log("Dart hit the balloon!"); // Log the collision
-            other.gameObject.GetComponent<Balloon>().HitByDart(25f); // Call the HitByDart method on the balloon to reduce its health
+            other.gameObject.GetComponent<Balloon>().HitByDart(); // Call the HitByDart method on the balloon to reduce its health
             Destroy(gameObject); // Destroy the dart object
         }
     }

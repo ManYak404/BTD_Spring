@@ -458,7 +458,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waypoints: []
   balloonPrefab: {fileID: 5354496236847222967, guid: 7d157e273d763534c8762117aad88583, type: 3}
-  numberOfBalloons: 0
+  numberOfBalloonsSpawned: 0
   path: {fileID: 1943279676}
   towerPrefab: {fileID: 1790535275090773903, guid: b3cf49e3477789a47bf3f51a8f73863c, type: 3}
   cursorTower: {fileID: 2128689018}
@@ -1105,8 +1105,8 @@ Transform:
   m_GameObject: {fileID: 985215967}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.33, y: -2.439, z: -0.037496798}
-  m_LocalScale: {x: 1, y: 4, z: 1}
+  m_LocalPosition: {x: -4.3226, y: -2.3788, z: -0.037496798}
+  m_LocalScale: {x: 1.0148, y: 3.8796, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1943279677}
@@ -1949,8 +1949,8 @@ Transform:
   m_GameObject: {fileID: 1593013969}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.33, y: -0.947, z: -0.037496798}
-  m_LocalScale: {x: 1, y: 7, z: 1}
+  m_LocalPosition: {x: -0.345, y: -0.9123, z: -0.037496798}
+  m_LocalScale: {x: 1, y: 6.9307003, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1943279677}
@@ -2304,8 +2304,8 @@ Transform:
   m_GameObject: {fileID: 1835572379}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.32, y: -3.94, z: -0.037496798}
-  m_LocalScale: {x: 5, y: 1, z: 1}
+  m_LocalPosition: {x: -2.3473, y: -3.9506, z: -0.037496798}
+  m_LocalScale: {x: 4.9455, y: 0.97167104, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1943279677}

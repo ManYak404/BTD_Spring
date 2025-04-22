@@ -1,0 +1,32 @@
+{
+    "balloons": [
+      {
+        "name": "red",
+        "speed": 1.0,
+        "health": 1,
+        "moneyValue": 1,
+        "nextBalloonsOnDestroy": []
+      },
+      {
+        "name": "blue",
+        "speed": 1.4,
+        "health": 1,
+        "moneyValue": 1,
+        "nextBalloonsOnDestroy": ["red"]
+      },
+      {
+        "name": "green",
+        "speed": 1.8,
+        "health": 1,
+        "moneyValue": 1,
+        "nextBalloonsOnDestroy": ["blue"]
+      },
+      {
+        "name": "yellow",
+        "speed": 3.2,
+        "health": 1,
+        "moneyValue": 1,
+        "nextBalloonsOnDestroy": ["green"]
+      }
+    ]
+  }

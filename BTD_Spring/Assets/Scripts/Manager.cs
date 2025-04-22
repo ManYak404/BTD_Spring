@@ -1,19 +1,24 @@
-using System.Collections;
-using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UIElements;
 
 public class Manager : MonoBehaviour
 {
     public static Manager ManagerInstance; // Singleton reference to this manager object available to all other scripts
     public Vector3[] waypoints;   // path waypoints for balloons to follow
+    public Dictionary<string, BalloonData> balloonDatas = new Dictionary<string, BalloonData>(); // balloon data for red balloons
+    public List<BalloonData> balloonDataList = new List<BalloonData>(); // list of all balloon data
     public GameObject balloonPrefab; // prefab for the balloon object to be spawned
-    public int numberOfBalloons = 0;
+    public int numberOfBalloonsSpawned = 0;
     public GameObject path;
     private int numWaypoints = 10; // number of waypoints in the path
     public GameObject towerPrefab; // prefab for the tower object to be spawned
     public GameObject cursorTower; // cursor icon object to show where tower will be spawned
     private bool isTowerBeingPlaced = false; // flag to check if a tower is being placed
+    private float health = 100f; // health of the player
+    private int money = 0; // money of the player
+    private float balloonSpawnRate = 1f; // rate at which balloons are spawned
+    private float balloonSpawnTimer = 0f; // timer to track the time since the last balloon was spawned
 
     void Awake()
     {
@@ -38,8 +43,7 @@ public class Manager : MonoBehaviour
         {
             waypoints[i] = path.transform.Find("waypoint" + i).position; // Initialize each waypoint
         }
-        
-        SpawnBalloon(); // spawn the first balloon at the start of the path
+        LoadBalloonData(); // load the balloon data from the balloons JSON file
     }
 
     // Update is called once per frame
@@ -54,18 +58,55 @@ public class Manager : MonoBehaviour
         {
             TowerPlacement(); // cursor tower icon management and tower placement
         }
+
+        balloonSpawnTimer += Time.deltaTime; // increment the balloon spawn timer
+        if(balloonSpawnTimer >= balloonSpawnRate) // check if the balloon spawn timer has reached the spawn rate
+        {
+            SpawnBalloon(balloonDataList[Random.Range(0,balloonDataList.Count)]); // spawn a new balloon at the start of the path
+            balloonSpawnTimer = 0f; // reset the balloon spawn timer
+        }
     }
+
+    void LoadBalloonData()
+{
+    TextAsset jsonText = Resources.Load<TextAsset>("Data/balloons");
+
+    if (jsonText != null)
+    {
+        BalloonDataList dataList = JsonUtility.FromJson<BalloonDataList>(jsonText.text);
+        foreach (BalloonData balloon in dataList.balloons)
+        {
+            balloonDatas.Add(balloon.name, balloon); // add the balloon data to the dictionary using the name as the key
+            balloonDataList.Add(balloon); // add the balloon data to the list
+        }
+    }
+    else
+    {
+        Debug.LogError("Could not find balloons.json in Resources/Data/");
+    }
+}
 
     public void BalloonReachedEnd(GameObject balloon)
     {
-        // handle the event when a balloon reaches the end of the path
-        Debug.Log("Balloon reached the end of the path!");
+        health -= 1f; // reduce player health when a balloon reaches the end of the path
+        Destroy(balloon); // destroy the balloon object
     }
 
-    public void SpawnBalloon()
+    public GameObject SpawnBalloon(BalloonData balloonData)
     {
         // spawn a new balloon at the start of the path
         GameObject newBalloon = Instantiate(balloonPrefab, waypoints[0], Quaternion.identity);
+        newBalloon.GetComponent<Balloon>().InitializeFromData(balloonData); // set the balloon type
+        numberOfBalloonsSpawned++; // increment the number of balloons in the queue
+        return newBalloon; // return the new balloon object
+    }
+    public GameObject SpawnBalloon(Transform inputTransform, string name)
+    {
+        // spawn a new balloon at the start of the path
+        GameObject newBalloon = Instantiate(balloonPrefab, inputTransform.position, inputTransform.rotation);
+        newBalloon.GetComponent<Balloon>().InitializeFromData(balloonDatas[name]); // set the balloon type
+        numberOfBalloonsSpawned++; // increment the number of balloons in the queue
+        return newBalloon; // return the new balloon object
     }
 
     public bool IsValidTowerPlacement(Vector3 position)
@@ -117,5 +158,24 @@ public class Manager : MonoBehaviour
                 isTowerBeingPlaced = false; // exit tower placement mode
             }
         }
+    }
+
+    public void DamagePlayer()
+    {
+        if(health<0f) // check if the player is already dead
+        {
+            Debug.Log("game over"); // log game over message
+        }
+        health -= 1f;
+    }
+
+    public void AddMoney(int amount)
+    {
+        money += amount; // add the specified amount of money to the player's total
+    }
+    
+    public void RemoveMoney(int amount)
+    {
+        money -= amount; // remove the specified amount of money from the player's total
     }
 }
