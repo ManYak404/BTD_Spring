@@ -40,6 +40,11 @@ public class Dart : MonoBehaviour
         // Check if the dart has collided with a balloon
         if (other.gameObject.CompareTag("Balloon"))
         {
+            // hit another balloon, set the soonToPop flag to false for the target balloon
+            if(other.gameObject != targetBalloon)
+            {
+                targetBalloon.GetComponent<Balloon>().soonToPop = false;
+            }
             other.gameObject.GetComponent<Balloon>().HitByDart(); // Call the HitByDart method on the balloon to reduce its health
             Destroy(gameObject); // Destroy the dart object
         }

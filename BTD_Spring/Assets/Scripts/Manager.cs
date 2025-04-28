@@ -18,6 +18,7 @@ public class Manager : MonoBehaviour
     public GameObject cursorTower; // cursor icon object to show where tower will be spawned
     private bool isTowerBeingPlaced = false; // flag to check if a tower is being placed
     private float health = 100f; // health of the player
+    private int towerCost = 50; // cost of the tower
     private int money = 100; // money of the player
     public TMP_Text moneyText; // text object to display the player's money
     public TMP_Text healthText; // text object to display the player's health
@@ -172,6 +173,7 @@ public class Manager : MonoBehaviour
             if(isValidTowerPlacement) // check if the tower can be placed at the mouse position
             {
                 GameObject newTower = Instantiate(towerPrefab, mousePos, Quaternion.identity); // spawn a new tower at the mouse position
+                RemoveMoney(towerCost); // deduct money for placing the tower
                 isTowerBeingPlaced = false; // exit tower placement mode
             }
         }
@@ -201,13 +203,10 @@ public class Manager : MonoBehaviour
         if(isTowerBeingPlaced) // check if the player is in tower placement mode
         {
             isTowerBeingPlaced = false; // exit tower placement mode
-            AddMoney(50); // refund the money spent on the tower
-            return;
         }
-        else if (money >= 100) // check if the player has enough money to buy a tower
+        else if (money >= towerCost) // check if the player has enough money to buy a tower
         {
             isTowerBeingPlaced = true; // enter tower placement mode
-            RemoveMoney(50); // deduct money for placing the tower
         }
     }
 }
