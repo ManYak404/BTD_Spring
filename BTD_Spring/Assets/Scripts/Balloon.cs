@@ -3,7 +3,7 @@ using UnityEngine;
 public class Balloon : MonoBehaviour
 {
     public Vector3[] waypoints;// path waypoints for balloon to follow
-    private BalloonData data; // balloon data for the current balloon
+    public BalloonData data; // balloon data for the current balloon
     private int currentWaypointIndex = 0; // index of the current waypoint the balloon is moving towards
     public float distanceTravelled = 0f; // distance traveled by the balloon
     public float health; // health of the balloon
@@ -13,7 +13,7 @@ public class Balloon : MonoBehaviour
     void Start()
     {
         waypoints = Manager.ManagerInstance.waypoints; // get the waypoints from the manager instance
-        transform.up = waypoints[currentWaypointIndex] - transform.position; // rotate the balloon to face the waypoint\
+        //transform.up = waypoints[currentWaypointIndex] - transform.position; // rotate the balloon to face the waypoint\
     }
 
     // Update is called once per frame
@@ -38,7 +38,7 @@ public class Balloon : MonoBehaviour
 
             // move the balloon towards the current waypoint
             transform.position = Vector3.MoveTowards(transform.position, waypoints[currentWaypointIndex], data.speed * Time.deltaTime);
-            transform.up = waypoints[currentWaypointIndex] - transform.position; // rotate the balloon to face the waypoint
+            //transform.up = waypoints[currentWaypointIndex] - transform.position; // rotate the balloon to face the waypoint
 
             // add distance travelled to the total distance travelled by the balloon
             float delta = Vector3.Distance(transform.position, oldPosition);
@@ -98,11 +98,7 @@ public class Balloon : MonoBehaviour
     public void PopBalloon()
     {
         // balloon popped, reduce health or spawn other balloons
-        if (IsBalloonEmptyOnPop())
-        {
-            DestroyBalloon(); // destroy the balloon object if it has no next balloons on destroy
-        }
-        else
+        if (!IsBalloonEmptyOnPop())
         {
             // spawn other balloons on pop
             foreach (string nextBalloon in data.nextBalloonsOnDestroy)
@@ -111,8 +107,9 @@ public class Balloon : MonoBehaviour
                 newBalloon.GetComponent<Balloon>().distanceTravelled = distanceTravelled; // set the distance travelled for the new balloon
                 newBalloon.GetComponent<Balloon>().currentWaypointIndex = currentWaypointIndex; // set the current waypoint index for the new balloon
             }
-            DestroyBalloon(); // destroy the current balloon object
         }
+        DestroyBalloon(); // destroy the balloon object if it has no next balloons on destroy
+        Manager.ManagerInstance.AddMoney(data.moneyValue); // add money to the player for popping the balloon
         soonToPop = false; // reset the soonToPop status of the balloon
     }
 }

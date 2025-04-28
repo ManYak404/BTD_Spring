@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6524550211381773776}
   - component: {fileID: 2256853353213296981}
   - component: {fileID: -1075066029354616289}
-  - component: {fileID: -6482149822794614634}
+  - component: {fileID: 7955649460206071041}
   m_Layer: 0
   m_Name: Balloon
   m_TagString: Balloon
@@ -28,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 5354496236847222967}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -47,8 +47,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   waypoints: []
-  speed: 5
-  index: 0
+  distanceTravelled: 0
+  health: 0
+  soonToPop: 0
 --- !u!212 &-1075066029354616289
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -92,20 +93,20 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: -9095717837082945937, guid: c1f8a69ebcb603c40b6ce7e43a861fe9, type: 3}
-  m_Color: {r: 0.9215687, g: 0.34509805, b: 0.3529412, a: 1}
+  m_SortingOrder: 1
+  m_Sprite: {fileID: -9160323954859155045, guid: 3ceb455443699a94498d5e6e7a7edbbe, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 2}
+  m_Size: {x: 0.9951172, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!70 &-6482149822794614634
-CapsuleCollider2D:
+--- !u!58 &7955649460206071041
+CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -139,5 +140,4 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 1, y: 2}
-  m_Direction: 0
+  m_Radius: 0.25

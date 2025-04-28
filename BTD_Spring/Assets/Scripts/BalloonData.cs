@@ -7,6 +7,7 @@ public class BalloonData
     public float speed;
     public float health; // health of the balloon
     public int moneyValue; // money value of the balloon
+    public int damage; // damage of the balloon
     public string[] nextBalloonsOnDestroy; // array of balloon types that can be spawned after this one
 }
 
