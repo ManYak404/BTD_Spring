@@ -3,17 +3,17 @@ using UnityEngine;
 public class Balloon : MonoBehaviour
 {
     public Vector3[] waypoints;// path waypoints for balloon to follow
+    public BalloonData data; // balloon data for the current balloon
     private int currentWaypointIndex = 0; // index of the current waypoint the balloon is moving towards
-    public float speed = 1f; // speed of the balloon
-    public float health = 100f; // health of the balloon
-    public int index; // index of the current balloon in the queue
+    public float distanceTravelled = 0f; // distance traveled by the balloon
+    public float health; // health of the balloon
+    public bool soonToPop = false;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         waypoints = Manager.ManagerInstance.waypoints; // get the waypoints from the manager instance
-        index = Manager.ManagerInstance.numberOfBalloons; // get the current balloon index from the manager instance
-        Manager.ManagerInstance.numberOfBalloons++; // increment manager instance balloon index
-        transform.up = waypoints[currentWaypointIndex] - transform.position; // rotate the balloon to face the waypoint
+        //transform.up = waypoints[currentWaypointIndex] - transform.position; // rotate the balloon to face the waypoint\
     }
 
     // Update is called once per frame
@@ -22,13 +22,27 @@ public class Balloon : MonoBehaviour
         MoveBalloonTowardsWaypoint(); //move the balloon towards the current waypoint
     }
 
+    public void InitializeFromData(BalloonData inputData)
+    {
+        data = inputData; // set the balloon data for the current balloon
+        health = data.health; // set the health of the balloon
+        VisualizeBalloon(); // visualize the balloon with the current type
+    }
+
     void MoveBalloonTowardsWaypoint()
     {
         if(currentWaypointIndex < waypoints.Length)
         {
+            // old position of balloon for distance calculation
+            Vector3 oldPosition = transform.position;
+
             // move the balloon towards the current waypoint
-            transform.position = Vector3.MoveTowards(transform.position, waypoints[currentWaypointIndex], speed * Time.deltaTime);
-            transform.up = waypoints[currentWaypointIndex] - transform.position; // rotate the balloon to face the waypoint
+            transform.position = Vector3.MoveTowards(transform.position, waypoints[currentWaypointIndex], data.speed * Time.deltaTime);
+            //transform.up = waypoints[currentWaypointIndex] - transform.position; // rotate the balloon to face the waypoint
+
+            // add distance travelled to the total distance travelled by the balloon
+            float delta = Vector3.Distance(transform.position, oldPosition);
+            distanceTravelled += delta;
             
             // check if the balloon has reached the current waypoint
             if (Vector3.Distance(transform.position, waypoints[currentWaypointIndex]) < 0.01f)
@@ -36,26 +50,66 @@ public class Balloon : MonoBehaviour
                 currentWaypointIndex++; // move to the next waypoint
             }
         }
+
         //balloon has reached the end of the path, reduce health or end game
         else
         {
-            DestroyBalloon(); // destroy the balloon object
+            Manager.ManagerInstance.BalloonReachedEnd(gameObject); // call dequeue in the manager to handle destruction
         }
     }
 
     void DestroyBalloon()
     {
-        Manager.ManagerInstance.BalloonReachedEnd(gameObject); // call dequeue in the manager to handle destruction
         Destroy(gameObject); // destroy the balloon object
     }
 
-    public void HitByDart(float damage)
+    public void HitByDart()
     {
-        // reduce the health of the balloon by the damage amount
-        health -= damage; // reduce the health of the balloon by the damage amount
-        if (health <= 0) // check if the balloon is dead
+        if(health > 1)
         {
-            DestroyBalloon(); // destroy the balloon object
+            health -= 1; // reduce the health of the balloon by 1
         }
+        else
+        {
+            health = 0; // set the health to 0 if it is less than 1
+            PopBalloon(); // call the pop balloon method to handle popping the balloon
+        }
+    }
+    public void VisualizeBalloon()
+    {
+        gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Sprites/BalloonSprites/balloon-" + data.name); // load the sprite for the balloon type
+    }
+
+    public bool IsBalloonEmptyOnPop()
+    {
+        return data.nextBalloonsOnDestroy.Length <= 0; // return true if the balloon has no next balloons on destroy
+    }
+
+    public bool IsSoonToPop()
+    {
+        return soonToPop; // return the soonToPop status of the balloon
+    }
+
+    public void SetBalloonToDieSoon()
+    {
+        soonToPop = true; // set the soonToPop to true
+    }
+
+    public void PopBalloon()
+    {
+        // balloon popped, reduce health or spawn other balloons
+        if (!IsBalloonEmptyOnPop())
+        {
+            // spawn other balloons on pop
+            foreach (string nextBalloon in data.nextBalloonsOnDestroy)
+            {
+                GameObject newBalloon = Manager.ManagerInstance.SpawnBalloon(transform, nextBalloon); // spawn the next balloon type
+                newBalloon.GetComponent<Balloon>().distanceTravelled = distanceTravelled; // set the distance travelled for the new balloon
+                newBalloon.GetComponent<Balloon>().currentWaypointIndex = currentWaypointIndex; // set the current waypoint index for the new balloon
+            }
+        }
+        DestroyBalloon(); // destroy the balloon object if it has no next balloons on destroy
+        Manager.ManagerInstance.AddMoney(data.moneyValue); // add money to the player for popping the balloon
+        soonToPop = false; // reset the soonToPop status of the balloon
     }
 }

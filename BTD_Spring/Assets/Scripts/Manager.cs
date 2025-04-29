@@ -1,19 +1,30 @@
-using System.Collections;
-using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UI;
+using TMPro;
+using UnityEngine.EventSystems;
 
 public class Manager : MonoBehaviour
 {
     public static Manager ManagerInstance; // Singleton reference to this manager object available to all other scripts
     public Vector3[] waypoints;   // path waypoints for balloons to follow
+    public Dictionary<string, BalloonData> balloonDatas = new Dictionary<string, BalloonData>(); // balloon data for red balloons
+    public List<BalloonData> balloonDataList = new List<BalloonData>(); // list of all balloon data
     public GameObject balloonPrefab; // prefab for the balloon object to be spawned
-    public int numberOfBalloons = 0;
+    public int numberOfBalloonsSpawned = 0;
     public GameObject path;
     private int numWaypoints = 10; // number of waypoints in the path
     public GameObject towerPrefab; // prefab for the tower object to be spawned
     public GameObject cursorTower; // cursor icon object to show where tower will be spawned
     private bool isTowerBeingPlaced = false; // flag to check if a tower is being placed
+    private float health = 100f; // health of the player
+    private int towerCost = 50; // cost of the tower
+    private int money = 100; // money of the player
+    public TMP_Text moneyText; // text object to display the player's money
+    public TMP_Text healthText; // text object to display the player's health
+    [SerializeField] public Button buyButton; // button object to buy a tower
+    private float balloonSpawnRate = 1f; // rate at which balloons are spawned
+    private float balloonSpawnTimer = 0f; // timer to track the time since the last balloon was spawned
 
     void Awake()
     {
@@ -27,7 +38,6 @@ public class Manager : MonoBehaviour
             Destroy(gameObject);
         }
         cursorTower.GetComponent<SpriteRenderer>().enabled = false; // hide the cursor tower icon at the start
-        cursorTower.GetComponent<SpriteRenderer>().color = new Color(1, 0, 0, 0.5f); // set the cursor tower icon to be transparent
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -38,34 +48,73 @@ public class Manager : MonoBehaviour
         {
             waypoints[i] = path.transform.Find("waypoint" + i).position; // Initialize each waypoint
         }
-        
-        SpawnBalloon(); // spawn the first balloon at the start of the path
+        LoadBalloonData(); // load the balloon data from the balloons JSON file
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.T)) // check if the space key is pressed
-        {
-            isTowerBeingPlaced = !isTowerBeingPlaced; // toggle the tower placement mode
-        }
+        TowerPlacement(); // cursor tower icon management and tower placement
 
-        if(isTowerBeingPlaced)
+        balloonSpawnTimer += Time.deltaTime; // increment the balloon spawn timer
+        if(balloonSpawnTimer >= balloonSpawnRate) // check if the balloon spawn timer has reached the spawn rate
         {
-            TowerPlacement(); // cursor tower icon management and tower placement
+            SpawnBalloon(balloonDataList[Random.Range(0,balloonDataList.Count)]); // spawn a new balloon at the start of the path
+            balloonSpawnTimer = 0f; // reset the balloon spawn timer
+        }
+        moneyText.text = "Money: " + money.ToString(); // update the money text display
+        healthText.text = "Health: " + ((int)health).ToString(); // update the health text display
+    }
+
+
+
+
+
+
+
+
+
+
+    void LoadBalloonData()
+    {
+        TextAsset jsonText = Resources.Load<TextAsset>("Data/balloons");
+
+        if (jsonText != null)
+        {
+            BalloonDataList dataList = JsonUtility.FromJson<BalloonDataList>(jsonText.text);
+            foreach (BalloonData balloon in dataList.balloons)
+            {
+                balloonDatas.Add(balloon.name, balloon); // add the balloon data to the dictionary using the name as the key
+                balloonDataList.Add(balloon); // add the balloon data to the list
+            }
+        }
+        else
+        {
+            Debug.LogError("Could not find balloons.json in Resources/Data/");
         }
     }
 
     public void BalloonReachedEnd(GameObject balloon)
     {
-        // handle the event when a balloon reaches the end of the path
-        Debug.Log("Balloon reached the end of the path!");
+        health -= balloon.GetComponent<Balloon>().data.damage; // reduce player health when a balloon reaches the end of the path
+        Destroy(balloon); // destroy the balloon object
     }
 
-    public void SpawnBalloon()
+    public GameObject SpawnBalloon(BalloonData balloonData)
     {
         // spawn a new balloon at the start of the path
         GameObject newBalloon = Instantiate(balloonPrefab, waypoints[0], Quaternion.identity);
+        newBalloon.GetComponent<Balloon>().InitializeFromData(balloonData); // set the balloon type
+        numberOfBalloonsSpawned++; // increment the number of balloons in the queue
+        return newBalloon; // return the new balloon object
+    }
+    public GameObject SpawnBalloon(Transform inputTransform, string name)
+    {
+        // spawn a new balloon at the start of the path
+        GameObject newBalloon = Instantiate(balloonPrefab, inputTransform.position, inputTransform.rotation);
+        newBalloon.GetComponent<Balloon>().InitializeFromData(balloonDatas[name]); // set the balloon type
+        numberOfBalloonsSpawned++; // increment the number of balloons in the queue
+        return newBalloon; // return the new balloon object
     }
 
     public bool IsValidTowerPlacement(Vector3 position)
@@ -96,26 +145,68 @@ public class Manager : MonoBehaviour
 
     public void TowerPlacement()
     {
+        if(isTowerBeingPlaced == false) // check if the player is in tower placement mode
+        {
+            cursorTower.GetComponent<SpriteRenderer>().enabled = false; // stop showing the cursor tower icon
+            return; // exit if the player is not placing a tower
+        }
         cursorTower.GetComponent<SpriteRenderer>().enabled = true; // show the cursor tower icon
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition); // get the mouse position in world coordinates
         mousePos.z = 0; // set the z coordinate to 0 to keep the tower on the same plane as the path
         cursorTower.transform.position = mousePos; // move the cursor tower icon to the mouse position
         bool isValidTowerPlacement = IsValidTowerPlacement(mousePos); // check if the tower can be placed at the mouse position
+        // Check if the mouse is over any UI
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            isValidTowerPlacement = false; // disable tower placement if the mouse is over any UI element
+        }
         if(isValidTowerPlacement)
         {
-            cursorTower.GetComponent<SpriteRenderer>().color = new Color(0, 1, 0, 1f); // set the cursor tower icon to be green if the tower can be placed
+            cursorTower.GetComponent<SpriteRenderer>().color = new Color(0, 1, 0, 0.5f); // set the cursor tower icon to be green if the tower can be placed
         }
         else
         {
-            cursorTower.GetComponent<SpriteRenderer>().color = new Color(1, 0, 0, 0.2f); // set the cursor tower icon to be red if the tower cannot be placed
+            cursorTower.GetComponent<SpriteRenderer>().color = new Color(1, 0, 0, 1f); // set the cursor tower icon to be red if the tower cannot be placed
         }
         if(Input.GetMouseButtonDown(0)) // check if the left mouse button is clicked
         {
             if(isValidTowerPlacement) // check if the tower can be placed at the mouse position
             {
                 GameObject newTower = Instantiate(towerPrefab, mousePos, Quaternion.identity); // spawn a new tower at the mouse position
+                RemoveMoney(towerCost); // deduct money for placing the tower
                 isTowerBeingPlaced = false; // exit tower placement mode
             }
+        }
+    }
+
+    public void DamagePlayer()
+    {
+        if(health<0f) // check if the player is already dead
+        {
+            Debug.Log("game over"); // log game over message
+        }
+        health -= 1f;
+    }
+
+    public void AddMoney(int amount)
+    {
+        money += amount; // add the specified amount of money to the player's total
+    }
+    
+    public void RemoveMoney(int amount)
+    {
+        money -= amount; // remove the specified amount of money from the player's total
+    }
+
+    public void OnClickBuyButton()
+    {
+        if(isTowerBeingPlaced) // check if the player is in tower placement mode
+        {
+            isTowerBeingPlaced = false; // exit tower placement mode
+        }
+        else if (money >= towerCost) // check if the player has enough money to buy a tower
+        {
+            isTowerBeingPlaced = true; // enter tower placement mode
         }
     }
 }

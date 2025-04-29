@@ -9,7 +9,6 @@ public class Tower : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
     }
 
     // Update is called once per frame
@@ -27,32 +26,39 @@ public class Tower : MonoBehaviour
     {
         // Find all colliders within the radius around the position
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, radius);
-        GameObject largestIndexedBalloon = null; // Variable to store the largest indexed balloon found
+        GameObject longestDistanceTravelledBalloon = null; // Variable to store the largest indexed balloon found
 
         foreach (Collider2D collider in colliders)
         {
             // Check if the collider is a balloon
             if (collider.CompareTag("Balloon"))
             {
-                if(largestIndexedBalloon == null || collider.gameObject.GetComponent<Balloon>().index > largestIndexedBalloon.GetComponent<Balloon>().index)
+                if( collider.gameObject.GetComponent<Balloon>().IsSoonToPop()) // Check if the balloon is soon to pop
                 {
-                    largestIndexedBalloon = collider.gameObject; // Update the largest indexed balloon
+                    continue; // Skip this balloon if it is soon to pop
+                }
+                if(longestDistanceTravelledBalloon == null ||
+                 collider.gameObject.GetComponent<Balloon>().distanceTravelled > longestDistanceTravelledBalloon.GetComponent<Balloon>().distanceTravelled)
+                {
+                    longestDistanceTravelledBalloon = collider.gameObject; // Update the largest indexed balloon
                 }
             }
         }
 
-        return largestIndexedBalloon; // Return the largest indexed balloon found
+        return longestDistanceTravelledBalloon; // Return the largest indexed balloon found
     }
 
     void FireDart()
     {
-        Debug.Log("Firing Dart!"); // Log the firing of the dart
         GameObject targetBalloon = NextBalloon(); // Get the next balloon to shoot at
         if (targetBalloon != null)
         {
-            Debug.Log("Target Balloon Found!"); // Log the target balloon found
             GameObject dart = Instantiate(dartPrefab, transform.position, Quaternion.identity); // Create a new dart object
             dart.GetComponent<Dart>().SetTarget(targetBalloon); // Set the target for the dart to follow
+            if(targetBalloon.GetComponent<Balloon>().IsBalloonEmptyOnPop()) // Check if the balloon is dead on pop
+            {
+                targetBalloon.GetComponent<Balloon>().SetBalloonToDieSoon(); // Set the soonToDie flag to true for the balloon
+            }
         }
     }
 }

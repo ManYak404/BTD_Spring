@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 73336352e97eee244a0e83df06097bf8
+guid: f1254397cccb7f34ab26a0128f995949
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -391929957135836613
-    second: balloonRed_0
+      213: 7679752765572173536
+    second: buttonTower_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -97,6 +97,19 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
     buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -113,23 +126,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: balloonRed_0
+      name: buttonTower_0
       rect:
         serializedVersion: 2
-        x: 3
+        x: 0
         y: 0
-        width: 1019
+        width: 1024
         height: 1024
       alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 125, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b3a9510d7c59f8af0800000000000000
-      internalID: -391929957135836613
+      spriteID: 0eec0c28376f39a60800000000000000
+      internalID: 7679752765572173536
       vertices: []
       indices: 
       edges: []
@@ -138,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 30f885eb2dca07547b992da84a11ff05
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      balloonRed_0: -391929957135836613
+      buttonTower_0: 7679752765572173536
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
