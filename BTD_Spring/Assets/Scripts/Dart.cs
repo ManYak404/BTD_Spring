@@ -4,6 +4,7 @@ using UnityEngine;
 public class Dart : MonoBehaviour
 {
     float speed = 20f; // Speed of the dart
+    bool hasHit = false;
     GameObject targetBalloon; // Target position for the dart to move towards
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -37,9 +38,13 @@ public class Dart : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        if(hasHit){
+            return; // Exit the method if the dart has already hit a balloon
+        }
         // Check if the dart has collided with a balloon
         if (other.gameObject.CompareTag("Balloon"))
         {
+            hasHit = true; // Set the hasHit flag to true to prevent multiple hits
             // hit another balloon, set the soonToPop flag to false for the target balloon
             if(other.gameObject != targetBalloon)
             {
